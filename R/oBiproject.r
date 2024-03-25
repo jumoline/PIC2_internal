@@ -53,7 +53,7 @@ oBiproject <- function(g, verbose=TRUE)
 	
 	if(0){
 	## only keep the largest component
-	ig <- dnet::dNetInduce(ig, nodes_query=V(ig)$name, knn=0, largest.comp=TRUE)
+	ig <- oNetInduce(ig, nodes_query=V(ig)$name, knn=0, largest.comp=TRUE)
 	if(verbose){
 		message(sprintf("\tThe largest component has %d nodes and %d edges", vcount(ig), ecount(ig)), appendLF=T)
 	}
@@ -100,7 +100,7 @@ oBiproject <- function(g, verbose=TRUE)
 	## ig_x: igraph from projected adjacency matrix on xnodes
 	ig_x <- igraph::graph.adjacency(xM, mode="undirected", weighted=TRUE, diag=FALSE)
 	### remove loops and multiple edges
-	#ig_x <- dnet::dNetInduce(ig_x, nodes_query=V(ig_x)$name, knn=0, largest.comp=TRUE)
+	#ig_x <- oNetInduce(ig_x, nodes_query=V(ig_x)$name, knn=0, largest.comp=TRUE)
 
 	if(verbose){
 		message(sprintf("Projected onto '%s' node type creates a graph of %d nodes and %d edges (%s) ...", names(vec_type)[1], vcount(ig_x), ecount(ig_x), as.character(Sys.time())), appendLF=T)

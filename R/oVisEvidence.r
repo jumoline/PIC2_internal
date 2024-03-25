@@ -119,7 +119,7 @@ oVisEvidence <- function(xTarget, g=NA, nodes=NULL, node.info=c("smart","simple"
 		neighbors <- rownames(df_neighbors)[1:neighbor.top]
 	}
 	vids <- union(neighbors, nodes)
-    subg <- dnet::dNetInduce(g, nodes_query=vids, knn=0, remove.loops=TRUE, largest.comp=largest.comp)
+    subg <- oNetInduce(g, nodes_query=vids, knn=0, remove.loops=TRUE, largest.comp=largest.comp)
     
 	if(verbose){
 		now <- Sys.time()

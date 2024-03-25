@@ -219,7 +219,7 @@ sum(x$max_phase>=0))
 dag_ig <- igraph::induced.subgraph(dag,
 vids=which(V(dag)$num_approved>=20))
 # (optional) further restricted to the direct children of the root
-root <- dnet::dDAGroot(dag_ig)
+root <- oDAGroot(dag_ig)
 neighs.out <- igraph::neighborhood(dag_ig, order=1, nodes=root,
 mode="out")
 nodeInduced <- V(dag_ig)[unique(unlist(neighs.out))]$name

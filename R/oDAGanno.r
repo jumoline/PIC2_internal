@@ -97,7 +97,7 @@ oDAGanno <- function(ig, anno, path.mode=c("all_paths","shortest_paths","all_sho
 		}
     
 		## get the levels list
-		level2node <- dnet::dDAGlevel(dag, level.mode="longest_path", return.mode="level2node")
+		level2node <- oDAGlevel(dag, level.mode="longest_path", return.mode="level2node")
 		## build a hash environment from the named list "level2node"
 		## level2node.Hash: key (level), value (a list of nodes/terms)
 		level2node.Hash <- list2env(level2node)

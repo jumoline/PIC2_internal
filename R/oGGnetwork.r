@@ -74,7 +74,7 @@
 #' # keep nodes with num_approved >=20
 #' dag_ig <- igraph::induced.subgraph(dag, vids=which(V(dag)$num_approved>=20))
 #' # (optional) further restricted to the direct children of the root
-#' root <- dnet::dDAGroot(dag_ig)
+#' root <- oDAGroot(dag_ig)
 #' neighs.out <- igraph::neighborhood(dag_ig, order=1, nodes=root, mode="out")
 #' nodeInduced <- V(dag_ig)[unique(unlist(neighs.out))]$name
 #' dag_ig <- igraph::induced.subgraph(dag_ig, vids=nodeInduced)
@@ -163,7 +163,7 @@ oGGnetwork <- function(g, node.label=NULL, label.wrap.width=NULL, label.wrap.lin
 			if(is.null(node.xcoord) | is.null(node.ycoord)){
 				## layout
 				#glayout <- igraph::layout_with_kk(ig)
-				glayout <- igraph::layout_as_tree(ig,root=dnet::dDAGroot(ig),circular=TRUE,flip.y=TRUE)
+				glayout <- igraph::layout_as_tree(ig,root=oDAGroot(ig),circular=TRUE,flip.y=TRUE)
 				if(all(is.na(glayout))){
 					glayout <- igraph::layout_with_kk(ig)
 				}

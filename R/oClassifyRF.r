@@ -334,7 +334,7 @@ oClassifyRF <- function(df_predictor, GSP, GSN, nfold=3, nrepeat=10, seed=825, m
 		rownames(df_pval) <- rownames(df_full)
 	
 		## aggregate p values
-		df_ap <- dnet::dPvalAggregate(pmatrix=df_pval, method=cv.aggregateBy)
+		df_ap <- oPvalAggregate(pmatrix=df_pval, method=cv.aggregateBy)
 		df_ap <- sort(df_ap, decreasing=FALSE)
 	
 		## get rank

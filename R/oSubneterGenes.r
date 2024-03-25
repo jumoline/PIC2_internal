@@ -132,7 +132,7 @@ oSubneterGenes <- function(data, network=NA, STRING.only=NA, network.customised=
         message(sprintf("#######################################################"))
     }
     
-	if(is(suppressWarnings(try(subnet <- dnet::dNetPipeline(g=g, pval=pval, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=verbose), TRUE)),"try-error")){
+	if(is(suppressWarnings(try(subnet <- oNetPipeline(g=g, pval=pval, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=verbose), TRUE)),"try-error")){
 		subnet <- NULL
 		
 	}else{
@@ -182,8 +182,8 @@ oSubneterGenes <- function(data, network=NA, STRING.only=NA, network.customised=
 					pval_permutated <- ls_index[[j]]$pval
 					names(pval_permutated) <- ls_index[[j]]$name
 					# For permutated pval
-					#subnet_permutated <- dnet::dNetPipeline(g=g, pval=pval_permutated, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=FALSE)
-					if(is(suppressWarnings(try(subnet_permutated <- suppressMessages(dnet::dNetPipeline(g=g, pval=pval_permutated, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=FALSE)), TRUE)),"try-error")){
+					#subnet_permutated <- oNetPipeline(g=g, pval=pval_permutated, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=FALSE)
+					if(is(suppressWarnings(try(subnet_permutated <- suppressMessages(oNetPipeline(g=g, pval=pval_permutated, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=FALSE)), TRUE)),"try-error")){
 						return(NULL)
 					}else{
 						return(subnet_permutated)
@@ -206,8 +206,8 @@ oSubneterGenes <- function(data, network=NA, STRING.only=NA, network.customised=
 					pval_permutated <- pval[ind]
 					names(pval_permutated) <- names(pval)
 					# For permutated pval
-					#ls_subnet_permutated[[j]] <- dnet::dNetPipeline(g=g, pval=pval_permutated, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=FALSE)
-					if(is(suppressWarnings(try(ls_subnet_permutated[[j]] <- suppressMessages(dnet::dNetPipeline(g=g, pval=pval_permutated, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=FALSE)), TRUE)),"try-error")){
+					#ls_subnet_permutated[[j]] <- oNetPipeline(g=g, pval=pval_permutated, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=FALSE)
+					if(is(suppressWarnings(try(ls_subnet_permutated[[j]] <- suppressMessages(oNetPipeline(g=g, pval=pval_permutated, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=FALSE)), TRUE)),"try-error")){
 						ls_subnet_permutated[[j]] <- NULL
 					}
 				}
@@ -217,11 +217,11 @@ oSubneterGenes <- function(data, network=NA, STRING.only=NA, network.customised=
 			}
 			
 			# append the confidence information from the source graphs into the target graph
-			subnet <- dnet::dNetConfidence(target=subnet, sources=ls_subnet_permutated, plot=FALSE)
+			subnet <- oNetConfidence(target=subnet, sources=ls_subnet_permutated, plot=FALSE)
 			E(subnet)$edgeConfidence <- E(subnet)$edgeConfidence/100
 			
 			# combined P-values for aggregated/global p-value
-			p_combined <- dnet::dPvalAggregate(pmatrix=matrix(E(subnet)$edgeConfidence,nrow=1), method=aggregateBy)
+			p_combined <- oPvalAggregate(pmatrix=matrix(E(subnet)$edgeConfidence,nrow=1), method=aggregateBy)
 			subnet$combinedP <- p_combined
 			
 			if(verbose){
@@ -230,7 +230,7 @@ oSubneterGenes <- function(data, network=NA, STRING.only=NA, network.customised=
 			
 		}
 	}
-    #subnet <- dnet::dNetPipeline(g=g, pval=pval, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=verbose)
+    #subnet <- oNetPipeline(g=g, pval=pval, method="customised", significance.threshold=subnet.significance, nsize=subnet.size, plot=FALSE, verbose=verbose)
 
 	# extract relevant info
 	#if(igraph::ecount(subnet)>0 && is(subnet,"igraph")){

@@ -66,7 +66,7 @@ oVisEvidenceAdv <- function(xTarget, g=NA, nodes=NULL, node.info=c("smart","simp
 	
 	## layout
 	if(any(is.null(V(subg)$xcoord), is.null(V(subg)$ycoord))){
-		#glayout <- igraph::layout_as_tree(subg,root=dnet::dDAGroot(subg),circular=TRUE,flip.y=TRUE)
+		#glayout <- igraph::layout_as_tree(subg,root=oDAGroot(subg),circular=TRUE,flip.y=TRUE)
 		if(0){
 			glayout <- igraph::layout_with_kk(subg)
 			V(subg)$xcoord <- glayout[,1]

@@ -138,7 +138,7 @@ oGGraph <- function(ig, layout='stress', circular=TRUE, leave=TRUE, node.label.s
 		}else if(node.label.direction=='leftright'){
 			offset <- (range(gp$data$x)[2]-range(gp$data$x)[1]) * node.label.offset
 	
-			root <- subset(gp$data, name==dnet::dDAGroot(ig))
+			root <- subset(gp$data, name==oDAGroot(ig))
 		
 			## left
 			df1 <- subset(df, x < root$x)
@@ -159,7 +159,7 @@ oGGraph <- function(ig, layout='stress', circular=TRUE, leave=TRUE, node.label.s
 		}else if(node.label.direction=='topbottom'){
 			offset <- (range(gp$data$y)[2]-range(gp$data$y)[1]) * node.label.offset
 	
-			root <- subset(gp$data, name==dnet::dDAGroot(ig))
+			root <- subset(gp$data, name==oDAGroot(ig))
 		
 			## bottom
 			df1 <- subset(df, y < root$y)

@@ -2,12 +2,12 @@ Package: PIC2
 Type: Package
 Title: Priority index for critical Covid-19
 Version: 1.0.0
-Date: 2024-1-9
+Date: 2024-3-25
 Authors@R: c(person("Hai", "Fang", email="fh12355@rjh.com.cn", role=c("aut","cre")))
 Maintainer: Hai Fang <fh12355@rjh.com.cn>
 Depends: R (>= 4.3.0), igraph, ggplot2
 Imports: BiocGenerics, dplyr, forcats, GenomicRanges, ggnetwork, ggrepel, IRanges, magrittr, Matrix, methods, osfr, purrr, readr, stats, stringr, tibble, tidyr, XML, pbapply, curl, ggraph
-Suggests: coin, foreach, ggridges, grid, gridExtra, RColorBrewer, ROCR, ggupset, rtracklayer, Gviz, MASS, dnet, graphics, grDevices, S4Vectors, utils, ggbio, GenomeInfoDb, doParallel, fgsea, scales, supraHex, data.tree, jsonlite
+Suggests: coin, foreach, ggridges, grid, gridExtra, RColorBrewer, ROCR, ggupset, rtracklayer, Gviz, MASS, graphics, grDevices, S4Vectors, utils, ggbio, GenomeInfoDb, doParallel, fgsea, scales, supraHex, data.tree, jsonlite
 Description: In parallels with a shift from genetic findings to translational applications, the PIC2 package is developed as a genetically powered drug-target discovery engine, featuring a genetics-led target prioritisation (an approach generating the target index) and a crosstalk-based drug repurposing strategy (an approach generating the drug index).
 Collate:
     'ClassMethod-PIC2.r'
@@ -76,5 +76,17 @@ Collate:
     'oSEAladder.r'
     'oHEB.r'
     'oAUCurve.r'
+    'oPvalAggregate.r'
+    'oDAGlevel.r'
+    'oDAGroot.r'
+    'oDAGreverse.r'
+    'oNetPipeline.r'
+    'oBUMfit.r'
+    'oBUMscore.r'
+    'oFDRscore.r'
+    'oNetFind.r'
+    'oNetConfidence.r'
+    'visNet.r'
+    'visDAG.r'
 License: GPL-2
 biocViews: SystemsBiology, FunctionalGenomics, GeneTarget, Pathways

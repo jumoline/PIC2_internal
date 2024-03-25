@@ -193,7 +193,7 @@ oPierMatrix <- function(list_pNode, displayBy=c("score","rank","weight","pvalue"
 		
 		## aggregate p values
 		if(aggregateBy != "none"){
-			df_ap <- dnet::dPvalAggregate(pmatrix=df_predictor, method=aggregateBy)
+			df_ap <- oPvalAggregate(pmatrix=df_predictor, method=aggregateBy)
 			df_ap <- sort(df_ap, decreasing=FALSE)
 			
 			## get rank
