@@ -1,3 +1,4 @@
+
 #' Function to prepare genetic predictors given a list of seed SNPs together with the significance level (e.g. GWAS reported p-values)
 #'
 #' \code{oPierSNPsAdv} is supposed to prepare genetic predictors given a list of seed SNPs together with the significance level (e.g. GWAS reported p-values). Internally it calls \code{\link{oPierSNPs}} to prepare the distance predictor, the eQTL predictors (if required) and the HiC predictors (if required). It returns a list of class "pNode" objects.
@@ -58,136 +59,209 @@
 #' #ls_pNode <- oPierSNPsAdv(data=AS, include.TAD='GM12878', include.QTL="JKng_mono", include.RGB='Monocytes', network="PCommonsUN_medium", restart=0.7, placeholder=placeholder, QTL.customised='QTL.customised.Artery.txt')
 #' }
 
-oPierSNPsAdv <- function(data, include.LD=NA, LD.customised=NULL, LD.r2=0.8, significance.threshold=5e-8, score.cap=100, distance.max=20000, decay.kernel=c("constant","slow","linear","rapid"), decay.exponent=2, GR.SNP=c("dbSNP_Common","dbSNP_GWAS","dbSNP_Single"), GR.Gene=c("UCSC_knownGene","UCSC_knownCanonical"), include.TAD=c("none","GM12878","IMR90","MSC","TRO","H1","MES","NPC"), include.QTL=NA, QTL.customised=NULL, include.RGB=NA, cdf.function=c("empirical","exponential"), scoring.scheme=c("max","sum","sequential"), network=c("STRING_highest","STRING_high","STRING_medium","STRING_low","PCommonsUN_high","PCommonsUN_medium","PCommonsDN_high","PCommonsDN_medium","PCommonsDN_Reactome","PCommonsDN_KEGG","PCommonsDN_HumanCyc","PCommonsDN_PID","PCommonsDN_PANTHER","PCommonsDN_ReconX","PCommonsDN_TRANSFAC","PCommonsDN_PhosphoSite","PCommonsDN_CTD", "KEGG","KEGG_metabolism","KEGG_genetic","KEGG_environmental","KEGG_cellular","KEGG_organismal","KEGG_disease","REACTOME"), STRING.only=c(NA,"neighborhood_score","fusion_score","cooccurence_score","coexpression_score","experimental_score","database_score","textmining_score")[1], weighted=FALSE, network.customised=NULL, seeds.inclusive=TRUE, normalise=c("laplacian","row","column","none"), restart=0.7, normalise.affinity.matrix=c("none","quantile"), verbose=TRUE, verbose.details=FALSE, placeholder=NULL, guid=NULL)
-{
 
-    startT <- Sys.time()
-    if(verbose){
-        message(paste(c("Start at ",as.character(startT)), collapse=""), appendLF=TRUE)
-        message("", appendLF=TRUE)
+oPierSNPsAdv <- function(data, include.LD = NA, LD.customised = NULL, LD.r2 = 0.8,
+                         significance.threshold = 5e-8, score.cap = 100, distance.max = 20000,
+                         decay.kernel = c("constant", "slow", "linear", "rapid"), decay.exponent = 2,
+                         GR.SNP = c("dbSNP_Common", "dbSNP_GWAS", "dbSNP_Single"),
+                         GR.Gene = c("UCSC_knownGene", "UCSC_knownCanonical"),
+                         include.TAD = c("none", "GM12878", "IMR90", "MSC", "TRO", "H1", "MES", "NPC"),
+                         include.QTL = NA, QTL.customised = NULL, include.RGB = NA,
+                         cdf.function = c("empirical", "exponential"), scoring.scheme = c("max", "sum", "sequential"),
+                         network = c("STRING_highest", "STRING_high", "STRING_medium", "STRING_low",
+                                     "PCommonsUN_high", "PCommonsUN_medium", "PCommonsDN_high",
+                                     "PCommonsDN_medium", "PCommonsDN_Reactome", "PCommonsDN_KEGG",
+                                     "PCommonsDN_HumanCyc", "PCommonsDN_PID", "PCommonsDN_PANTHER",
+                                     "PCommonsDN_ReconX", "PCommonsDN_TRANSFAC", "PCommonsUN_PhosphoSite",
+                                     "PCommonsDN_CTD", "KEGG", "KEGG_metabolism", "KEGG_genetic",
+                                     "KEGG_environmental", "KEGG_cellular", "KEGG_organismal",
+                                     "KEGG_disease", "REACTOME"),
+                         STRING.only = c(NA, "neighborhood_score", "fusion_score", "cooccurence_score",
+                                         "coexpression_score", "experimental_score", "database_score",
+                                         "textmining_score")[1], weighted = FALSE,
+                         network.customised = NULL, seeds.inclusive = TRUE,
+                         normalise = c("laplacian", "row", "column", "none"), restart = 0.7,
+                         normalise.affinity.matrix = c("none", "quantile"), verbose = TRUE,
+                         verbose.details = FALSE, placeholder = NULL, guid = NULL) {
+  
+  startT <- Sys.time()
+  if (verbose) {
+    message(paste(c("Start at ", as.character(startT)), collapse = ""), appendLF = TRUE)
+    message("", appendLF = TRUE)
+  }
+  ####################################################################################
+  
+  decay.kernel <- match.arg(decay.kernel)
+  cdf.function <- match.arg(cdf.function)
+  scoring.scheme <- match.arg(scoring.scheme)
+  network <- match.arg(network)
+  normalise <- match.arg(normalise)
+  normalise.affinity.matrix <- match.arg(normalise.affinity.matrix)
+  
+  if (verbose == FALSE) {
+    verbose.details <- FALSE
+  }
+  ####################################################################################
+  if (verbose) {
+    message(sprintf("Preparing the distance predictor (%s) ...", as.character(Sys.time())), appendLF = TRUE)
+  }
+  relative.importance <- c(1, 0, 0)
+  pNode_distance <- oPierSNPs(data = data, include.LD = include.LD, LD.customised = LD.customised,
+                              LD.r2 = LD.r2, significance.threshold = significance.threshold,
+                              score.cap = score.cap, distance.max = distance.max,
+                              decay.kernel = decay.kernel, decay.exponent = decay.exponent,
+                              GR.SNP = GR.SNP, GR.Gene = GR.Gene, include.TAD = include.TAD,
+                              include.QTL = NA, QTL.customised = NULL, include.RGB = NA,
+                              cdf.function = cdf.function, relative.importance = relative.importance,
+                              scoring.scheme = scoring.scheme, network = network,
+                              weighted = weighted, network.customised = network.customised,
+                              seeds.inclusive = seeds.inclusive, normalise = normalise,
+                              restart = restart, normalise.affinity.matrix = normalise.affinity.matrix,
+                              verbose = verbose.details, placeholder = placeholder, guid = guid)
+  
+  ls_pNode_distance <- list(pNode_distance)
+  names(ls_pNode_distance) <- paste('nGene_', distance.max, '_', decay.kernel, sep = '')
+  
+  ####################################################################################
+  
+  ls_pNode_eQTL <- NULL
+  
+  include.QTLs <- include.QTL[!is.na(include.QTL)]
+  if (length(include.QTLs) > 0) {
+    names(include.QTLs) <- include.QTLs
+    ls_pNode_eQTL <- pbapply::pblapply(include.QTLs, function(x) {
+      if (verbose) {
+        message(sprintf("\nPreparing the eQTL predictor '%s' (%s) ...", x, as.character(Sys.time())), appendLF = TRUE)
+      }
+      relative.importance <- c(0, 1, 0)
+      pNode <- oPierSNPs(data = data, include.LD = include.LD, LD.customised = LD.customised,
+                         LD.r2 = LD.r2, significance.threshold = significance.threshold,
+                         score.cap = score.cap, distance.max = distance.max, decay.kernel = decay.kernel,
+                         decay.exponent = decay.exponent, GR.SNP = GR.SNP, GR.Gene = GR.Gene,
+                         include.QTL = x, QTL.customised = NULL, include.RGB = NA,
+                         cdf.function = cdf.function, relative.importance = relative.importance,
+                         scoring.scheme = scoring.scheme, network = network, weighted = weighted,
+                         network.customised = network.customised, seeds.inclusive = seeds.inclusive,
+                         normalise = normalise, restart = restart,
+                         normalise.affinity.matrix = normalise.affinity.matrix,
+                         verbose = verbose.details, placeholder = placeholder, guid = guid)
+      if (verbose & is.null(pNode)) {
+        message(sprintf("\tNote: this predictor '%s' is NULL", x))
+      }
+      return(pNode)
+    })
+    names(ls_pNode_eQTL) <- paste('eGene_', names(ls_pNode_eQTL), sep = '')
+  }
+  
+  ###### Process Customised QTL ######
+  ls_pNode_eQTL_customised <- NULL
+  df_SGS_customised <- NULL
+  
+  if (!is.null(QTL.customised)) {
+    if (is.vector(QTL.customised)) {
+      # Initialize an empty list to store data frames
+      df_list <- list()
+      
+      # Iterate through each file in QTL.customised
+      for (file in QTL.customised) {
+        # Construct the full file path
+        full_path <- file.path(placeholder, file)
+        
+        # Read the file
+        if (file.exists(full_path)) {
+          if (verbose) {
+            message(sprintf("Reading file: %s", full_path))
+          }
+          df_temp <- utils::read.delim(file = full_path, header = TRUE, row.names = NULL, stringsAsFactors = FALSE)
+          df_temp <- df_temp[!is.na(df_temp$SNP) & !is.na(df_temp$Gene), ]  # Filter out NA rows
+          df_list[[full_path]] <- df_temp  # Store the data frame in the list
+        } else {
+          warning(sprintf("File %s does not exist. Please check the path.", full_path))
+        }
+      }
+      
+      # Combine all data frames into one
+      if (length(df_list) > 0) {
+        df_SGS_customised <- do.call(rbind, df_list)
+      }
+    } else if (is.matrix(QTL.customised) | is.data.frame(QTL.customised)) {
+      df_SGS_customised <- QTL.customised %>% as.data.frame()
     }
-    ####################################################################################
     
-    ## match.arg matches arg against a table of candidate values as specified by choices, where NULL means to take the first one
-    decay.kernel <- match.arg(decay.kernel)
-    cdf.function <- match.arg(cdf.function)
-    scoring.scheme <- match.arg(scoring.scheme)
-    network <- match.arg(network)
-    normalise <- match.arg(normalise)
-    normalise.affinity.matrix <- match.arg(normalise.affinity.matrix)
-    
-    ## force verbose.details to be FALSE if verbose is FALSE
-    if(verbose==FALSE){
-    	verbose.details <- FALSE
+    if (!is.null(df_SGS_customised)) {
+      colnames(df_SGS_customised) <- c("SNP", "Gene", "Sig", "Context")
+      df_SGS_customised <- df_SGS_customised[!is.na(df_SGS_customised[, 1]) & !is.na(df_SGS_customised[, 2]), ]
     }
-    ####################################################################################
-	if(verbose){
-		message(sprintf("Preparing the distance predictor (%s) ...", as.character(Sys.time())), appendLF=TRUE)
-	}
-	relative.importance <- c(1,0,0)
-    pNode_distance <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.TAD=include.TAD, include.QTL=NA, QTL.customised=NULL, include.RGB=NA, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, verbose=verbose.details, placeholder=placeholder, guid=guid)
-    ls_pNode_distance <- list(pNode_distance)
-    names(ls_pNode_distance) <- paste('nGene_', distance.max, '_', decay.kernel, sep='')
-    
-    ####################################################################################
-    
-    ls_pNode_eQTL <- NULL
-    
-    include.QTLs <- include.QTL[!is.na(include.QTL)]
-    if(length(include.QTLs)>0){
-		names(include.QTLs) <- include.QTLs
-		ls_pNode_eQTL <- pbapply::pblapply(include.QTLs, function(x){
-			if(verbose){
-				message(sprintf("\nPreparing the eQTL predictor '%s' (%s) ...", x, as.character(Sys.time())), appendLF=TRUE)
-			}
-			relative.importance <- c(0,1,0)
-			pNode <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=x, QTL.customised=NULL, include.RGB=NA, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, verbose=verbose.details, placeholder=placeholder, guid=guid)
-			if(verbose & is.null(pNode)){
-				message(sprintf("\tNote: this predictor '%s' is NULL", x))
-			}
-			return(pNode)
-		})
-		names(ls_pNode_eQTL) <- paste('eGene_', names(ls_pNode_eQTL), sep='')
-    }
-    
-    ################################
-    ################################
-    ls_pNode_eQTL_customised <- NULL
-    df_SGS_customised <- NULL
-    if(!is.null(QTL.customised)){
-    
-		if(is.vector(QTL.customised)){
-			# assume a file
-			df <- utils::read.delim(file=QTL.customised, header=TRUE, row.names=NULL, stringsAsFactors=FALSE)
-		}else if(is.matrix(QTL.customised) | is.data.frame(QTL.customised)){
-			df <- QTL.customised %>% as.data.frame()
-		}
-		
-		if(!is.null(df)){
-			colnames(df) <- c("SNP", "Gene", "Sig", "Context")
-			SGS_customised <- df
-			#SGS_customised <- cbind(df, Context=rep('Customised',nrow(df)))
-			
-			############################
-			# remove Gene if NA
-			# remove SNP if NA
-			df_SGS_customised <- SGS_customised[!is.na(SGS_customised[,1]) & !is.na(SGS_customised[,2]),]
-			############################
-		}
-    }
-    if(!is.null(df_SGS_customised)){
-		ls_df <- split(x=df_SGS_customised, f=df_SGS_customised$Context)
-		ls_pNode_eQTL_customised <- pbapply::pblapply(1:length(ls_df), function(i){
-			if(verbose){
-				message(sprintf("\nPreparing the customised eQTL predictor '%s' (%s) ...", names(ls_df)[i], as.character(Sys.time())), appendLF=TRUE)
-			}
-			relative.importance <- c(0,1,0)
-			pNode <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=NA, QTL.customised=ls_df[[i]], include.RGB=NA, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, verbose=verbose.details, placeholder=placeholder, guid=guid)
-			if(verbose & is.null(pNode)){
-				message(sprintf("\tNote: this predictor '%s' is NULL", names(ls_df)[i]), appendLF=TRUE)
-			}
-			return(pNode)
-		})
-		names(ls_pNode_eQTL_customised) <- paste('eGene_', names(ls_df), sep='')
-    }
-    ls_pNode_eQTL <- c(ls_pNode_eQTL, ls_pNode_eQTL_customised)
-    ################################
-    ################################
-    
-    include.RGBs <- include.RGB[!is.na(include.RGB)]
-    if(length(include.RGBs)>0){
-		names(include.RGBs) <- include.RGBs
-		ls_pNode_HiC <- pbapply::pblapply(include.RGBs, function(x){
-			if(verbose){
-				message(sprintf("\nPreparing the HiC predictor '%s' (%s) ...", x, as.character(Sys.time())), appendLF=TRUE)
-			}
-			relative.importance <- c(0,0,1)
-			pNode <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=NA, QTL.customised=NULL, include.RGB=x, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, verbose=verbose.details, placeholder=placeholder, guid=guid)
-			if(verbose & is.null(pNode)){
-				message(sprintf("\tNote: this predictor '%s' has NULL", x), appendLF=TRUE)
-			}
-			return(pNode)
-		})
-		names(ls_pNode_HiC) <- paste('cGene_', names(ls_pNode_HiC), sep='')
-	}else{
-		ls_pNode_HiC <- NULL
-	}
-    
-    ##########################################################################################
-    ## prioritisation equally
-    #relative.importance <- c(1/3,1/3,1/3)
-    #pNode_all <- oPierSNPs(data=data, include.LD=include.LD, LD.customised=LD.customised, LD.r2=LD.r2, significance.threshold=significance.threshold, score.cap=score.cap, distance.max=distance.max, decay.kernel=decay.kernel, decay.exponent=decay.exponent, GR.SNP=GR.SNP, GR.Gene=GR.Gene, include.QTL=include.QTLs, QTL.customised=NULL, include.RGB=include.RGBs, cdf.function=cdf.function, relative.importance=relative.importance, scoring.scheme=scoring.scheme, network=network, weighted=weighted, network.customised=network.customised, seeds.inclusive=seeds.inclusive, normalise=normalise, restart=restart, normalise.affinity.matrix=normalise.affinity.matrix, verbose=verbose, placeholder=placeholder, guid=guid)
-    ##########################################################################################
-    ls_pNode <- c(ls_pNode_distance, ls_pNode_eQTL, ls_pNode_HiC)
-    
-    ####################################################################################
-    endT <- Sys.time()
-    if(verbose){
-        message(paste(c("\nFinish at ",as.character(endT)), collapse=""), appendLF=TRUE)
-    }
-    
-    runTime <- as.numeric(difftime(strptime(endT, "%Y-%m-%d %H:%M:%S"), strptime(startT, "%Y-%m-%d %H:%M:%S"), units="secs"))
-    message(paste(c("Runtime in total is: ",runTime," secs\n"), collapse=""), appendLF=TRUE)
-    
-    invisible(ls_pNode)
+  }
+  
+  if (!is.null(df_SGS_customised)) {
+    ls_df <- split(x = df_SGS_customised, f = df_SGS_customised$Context)
+    ls_pNode_eQTL_customised <- pbapply::pblapply(1:length(ls_df), function(i) {
+      if (verbose) {
+        message(sprintf("\nPreparing the customised eQTL predictor '%s' (%s) ...", names(ls_df)[i], as.character(Sys.time())), appendLF = TRUE)
+      }
+      relative.importance <- c(0, 1, 0)
+      pNode <- oPierSNPs(data = data, include.LD = include.LD, LD.customised = LD.customised,
+                         LD.r2 = LD.r2, significance.threshold = significance.threshold,
+                         score.cap = score.cap, distance.max = distance.max, decay.kernel = decay.kernel,
+                         decay.exponent = decay.exponent, GR.SNP = GR.SNP, GR.Gene = GR.Gene,
+                         include.QTL = NA, QTL.customised = ls_df[[i]], include.RGB = NA,
+                         cdf.function = cdf.function, relative.importance = relative.importance,
+                         scoring.scheme = scoring.scheme, network = network, weighted = weighted,
+                         network.customised = network.customised, seeds.inclusive = seeds.inclusive,
+                         normalise = normalise, restart = restart,
+                         normalise.affinity.matrix = normalise.affinity.matrix,
+                         verbose = verbose.details, placeholder = placeholder, guid = guid)
+      if (verbose & is.null(pNode)) {
+        message(sprintf("\tNote: this predictor '%s' is NULL", names(ls_df)[i]), appendLF = TRUE)
+      }
+      return(pNode)
+    })
+    names(ls_pNode_eQTL_customised) <- paste('eGene_', names(ls_df), sep = '')
+  }
+  
+  ls_pNode_eQTL <- c(ls_pNode_eQTL, ls_pNode_eQTL_customised)
+  
+  ####### Continue with HiC predictors if required #########
+  
+  include.RGBs <- include.RGB[!is.na(include.RGB)]
+  if (length(include.RGBs) > 0) {
+    names(include.RGBs) <- include.RGBs
+    ls_pNode_HiC <- pbapply::pblapply(include.RGBs, function(x) {
+      if (verbose) {
+        message(sprintf("\nPreparing the HiC predictor '%s' (%s) ...", x, as.character(Sys.time())), appendLF = TRUE)
+      }
+      relative.importance <- c(0, 0, 1)
+      pNode <- oPierSNPs(data = data, include.LD = include.LD, LD.customised = LD.customised,
+                         LD.r2 = LD.r2, significance.threshold = significance.threshold,
+                         score.cap = score.cap, distance.max = distance.max, decay.kernel = decay.kernel,
+                         decay.exponent = decay.exponent, GR.SNP = GR.SNP, GR.Gene = GR.Gene,
+                         include.QTL = NA, QTL.customised = NULL, include.RGB = x,
+                         cdf.function = cdf.function, relative.importance = relative.importance,
+                         scoring.scheme = scoring.scheme, network = network, weighted = weighted,
+                         network.customised = network.customised, seeds.inclusive = seeds.inclusive,
+                         normalise = normalise, restart = restart,
+                         normalise.affinity.matrix = normalise.affinity.matrix,
+                         verbose = verbose.details, placeholder = placeholder, guid = guid)
+      if (verbose & is.null(pNode)) {
+        message(sprintf("\tNote: this predictor '%s' has NULL", x), appendLF = TRUE)
+      }
+      return(pNode)
+    })
+    names(ls_pNode_HiC) <- paste('cGene_', names(ls_pNode_HiC), sep = '')
+  } else {
+    ls_pNode_HiC <- NULL
+  }
+  
+  ls_pNode <- c(ls_pNode_distance, ls_pNode_eQTL, ls_pNode_HiC)
+  
+  endT <- Sys.time()
+  if (verbose) {
+    message(paste(c("\nFinish at ", as.character(endT)), collapse = ""), appendLF = TRUE)
+  }
+  
+  runTime <- as.numeric(difftime(strptime(endT, "%Y-%m-%d %H:%M:%S"), strptime(startT, "%Y-%m-%d %H:%M:%S"), units = "secs"))
+  message(paste(c("Runtime in total is: ", runTime, " secs\n"), collapse = ""), appendLF = TRUE)
+  
+  invisible(ls_pNode)
 }
